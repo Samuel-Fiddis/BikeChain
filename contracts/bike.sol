@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.18;
 
 contract BikeChain{
 
@@ -12,7 +12,7 @@ contract BikeChain{
         bool stolen;
     }
 
-    address company;
+    address public company;
     mapping(string => Bike) register; // Maps frame number to bike
     mapping(string => address) ownerList; // Maps frame number to owner
 
@@ -26,12 +26,12 @@ contract BikeChain{
             _;
     }
 
-    event BikeCreated(Bike b);
-    event BikeTransfered(address from, address to, Bike b);
-    event BikeStolen(Bike b, string details);
-    event BikeFound(address finder, Bike b, string details);
+    event BikeCreated(string frameNumber);
+    event BikeTransfered(address from, address to, string frameNumber);
+    event BikeStolen(string frameNumber, string details);
+    event BikeFound(address finder, string frameNumber, string details);
 
-    function BikeChain() public {
+    function BikeChain() public{
         company = msg.sender;
     }
 
@@ -48,24 +48,44 @@ contract BikeChain{
         b.colour = _colour;
         b.features = _features;
         b.stolen = false;
-        BikeCreated(b);
+        BikeCreated(_frameNumber);
 
         ownerList[_frameNumber] = msg.sender;
     }
 
-    function reportStolen(string _frameNumber, string details) bikeOwner(_frameNumber) public {
+    function reportStolen(string _frameNumber, string details) bikeOwner(_frameNumber) public{
         Bike storage b = register[_frameNumber];
         b.stolen = true;
-        BikeStolen(b, details);
+        BikeStolen(_frameNumber, details);
     }
 
     function transferOwner(string _frameNumber, address newOwner) bikeOwner(_frameNumber) public{
         ownerList[_frameNumber] = newOwner;
-        BikeTransfered(msg.sender, newOwner, register[_frameNumber]);
+        BikeTransfered(msg.sender, newOwner, _frameNumber);
     }
 
     function reportFound(string _frameNumber, string details) public{
         require(register[_frameNumber].stolen);
-        BikeFound(msg.sender, register[_frameNumber], details);
+        BikeFound(msg.sender, _frameNumber, details);
     }
+
+    // Get functions
+
+    function getBike(string _frameNumber) constant public
+    returns(string make, string model, uint16 year, uint8 size, string colour, string features, bool stolen){
+
+    Bike storage b = register[_frameNumber];
+    make = b.make;
+    model = b.model;
+    year = b.year;
+    size = b.size;
+    colour = b.colour;
+    features = b.features;
+    stolen = b.stolen;
+    }
+
+    function getOwner(string _frameNumber) constant public returns(address owner){
+        owner = ownerList[_frameNumber];
+    }
+
 }
