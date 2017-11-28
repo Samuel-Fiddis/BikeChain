@@ -12,12 +12,12 @@ contract BikeChain{
         bool stolen;
     }
 
-    address public company;
+    address[] public company;
     mapping(string => Bike) register; // Maps frame number to bike
     mapping(string => address) ownerList; // Maps frame number to owner
 
-    modifier onlyCompany(){
-        require(msg.sender == company);
+    modifier onlyCompany(uint cID){
+        require(msg.sender == company[cID]);
         _;
     }
 
@@ -32,10 +32,17 @@ contract BikeChain{
     event BikeFound(address finder, string frameNumber, string details);
 
     function BikeChain() public{
-        company = msg.sender;
+        company.length++;
+        company[0] = msg.sender;
     }
 
-    function addBike(string _frameNumber, string _make, string _model, uint16 _year, uint8 _size, string _colour, string _features) onlyCompany public{
+    function addCompany(uint cID, address newCompany) onlyCompany(cID) public returns(uint newcID){
+        newcID = company.length++;
+        company[newcID] = newCompany;
+        return newcID;
+    }
+
+    function addBike(string _frameNumber, string _make, string _model, uint16 _year, uint8 _size, string _colour, string _features, uint cID) onlyCompany(cID) public{
         require(ownerList[_frameNumber] == 0); // Check bike isn't owned
         bytes memory tempEmptyStringTest = bytes(register[_frameNumber].make);
         require(tempEmptyStringTest.length == 0); // Make sure bike isn't in register
@@ -82,6 +89,11 @@ contract BikeChain{
     colour = b.colour;
     features = b.features;
     stolen = b.stolen;
+    }
+
+    function getCompany(uint cID) constant public returns(address co){
+        require(cID < company.length);
+        co = company[cID];
     }
 
     function getOwner(string _frameNumber) constant public returns(address owner){
