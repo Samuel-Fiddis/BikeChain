@@ -42,7 +42,8 @@ contract BikeChain{
         return newcID;
     }
 
-    function addBike(string _frameNumber, string _make, string _model, uint16 _year, uint8 _size, string _colour, string _features, uint cID) onlyCompany(cID) public{
+    function addBike(string _frameNumber, string _make, string _model, uint16 _year, uint8 _size, string _colour, string _features, uint cID)
+    onlyCompany(cID) public returns(bool){
         require(ownerList[_frameNumber] == 0); // Check bike isn't owned
         bytes memory tempEmptyStringTest = bytes(register[_frameNumber].make);
         require(tempEmptyStringTest.length == 0); // Make sure bike isn't in register
@@ -58,6 +59,8 @@ contract BikeChain{
         BikeCreated(_frameNumber);
 
         ownerList[_frameNumber] = msg.sender;
+
+        return true;
     }
 
     function reportStolen(string _frameNumber, string details) bikeOwner(_frameNumber) public{
