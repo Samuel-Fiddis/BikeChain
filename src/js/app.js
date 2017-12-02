@@ -132,26 +132,23 @@ App = {
     var bikeRow = $('#bikeRow');
     var bikeTemplate = $('#bikeTemplate');
 
-    bikeTemplate.find('.framenumber').text(framenumber);
-    bikeTemplate.find('.make').text("Trek");
-    bikeTemplate.find('.model').text("Madone");
-    bikeTemplate.find('.year').text("2018");
-
-    bikeRow.append(bikeTemplate.html());
-
     App.contracts.BikeChain.deployed().then(function(instance) {
       console.log("In deployed contract");
       bikeInstance = instance;
 
-      return bikeInstance.getBike(framenumber).call();
+      return bikeInstance.getBike(framenumber);
     }).then(function(bike) {
 
-        bikeTemplate.find('.framenumber').text(framenumber);
-        bikeTemplate.find('.make').text(bike.make);
-        bikeTemplate.find('.model').text(bike.model);
-        bikeTemplate.find('.year').text(String(bike.year));
+      if(bike[0] == ""){
+        throw new Error("Bike not in register");
+      }
 
-        bikeRow.append(bikeTemplate.html());
+      bikeTemplate.find('.framenumber').text(framenumber);
+      bikeTemplate.find('.make').text(bike[0]);
+      bikeTemplate.find('.model').text(bike[1]);
+      bikeTemplate.find('.year').text(String(bike[2]));
+
+      bikeRow.append(bikeTemplate.html());
     }).catch(function(err) {
       console.log(err.message);
     });
