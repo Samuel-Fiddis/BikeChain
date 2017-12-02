@@ -12,6 +12,12 @@ contract BikeChain{
         bool stolen;
     }
 
+    // Currently unused
+    struct Owner{
+        address owner;
+        string email;
+    }
+
     address[] public company;
     mapping(string => Bike) register; // Maps frame number to bike
     mapping(string => address) ownerList; // Maps frame number to owner
@@ -76,7 +82,19 @@ contract BikeChain{
 
     function reportFound(string _frameNumber, string details) public{
         require(register[_frameNumber].stolen);
+        register[_frameNumber].stolen = false;
         BikeFound(msg.sender, _frameNumber, details);
+    }
+
+    function removeCompany(uint cID){
+        require(cID != 0);
+        require(cID < company.length);
+
+        for (uint i = cID; i < company.length-1; i++){
+          company[i] = company[i+1];
+        }
+        delete company[company.length-1];
+        company.length--;
     }
 
     // Get functions

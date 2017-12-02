@@ -58,10 +58,27 @@
         </form>
       </div>
 
+    </br>
 
       <div id="bikeRow" class="row">
         <!-- Bikes LOAD HERE -->
       </div>
+
+    </br>
+
+      <!-- Report Bike Stolen -->
+      <div id="reportBike">
+        <form>
+          <fieldset>
+            <legend>Report Your Bike Stolen/Found:</legend>
+              Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
+              <input type="checkbox" name="Stolen" class="stolen-status">Bike has been stolen.</input></br>
+              <input type="checkbox" name="Found" class="found-status">Bike has been found.</input></br>
+            </br><input type="submit" value="Report" class="report-bike">
+            </fieldset>
+        </form>
+      </div>
+
     </div>
 
     <div id="bikeTemplate" style="display: none;">
@@ -75,7 +92,8 @@
             <br/><br/>
             <strong>Make</strong>: <span class="make">Giant</span><br/>
             <strong>Model</strong>: <span class="model">Defy</span><br/>
-            <strong>Year</strong>: <span class="year">2008</span><br/><br/>
+            <strong>Year</strong>: <span class="year">2008</span><br/>
+            <strong>Status</strong>: <span class="stolen">Undefined</span><br/><br/>
           </div>
         </div>
       </div>
