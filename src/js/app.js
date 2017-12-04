@@ -29,9 +29,6 @@ App = {
 
       // Set the provider for our contract
       App.contracts.BikeChain.setProvider(App.web3Provider);
-
-      // Use our contract to retrieve and mark the adopted pets
-      //return App.markAdopted();
     });
 
     return App.bindEvents();
@@ -57,10 +54,10 @@ App = {
 
     App.contracts.BikeChain.deployed().then(function(instance) {
       bikechainInstance = instance;
-      // Execute adopt as a transaction by sending account
+
       return bikechainInstance.addBike(framenumber, make, model, year, size, colour, features, cID);
     }).then(function(result) {
-      console.log("Bike Added");
+      console.log(result.log);
     }).catch(function(err) {
       console.log(err.message);
     });
@@ -77,10 +74,9 @@ App = {
     var bikeTemplate = $('#bikeTemplate');
 
     App.contracts.BikeChain.deployed().then(function(instance) {
-      console.log("In deployed contract");
       bikeInstance = instance;
 
-      return bikeInstance.getBike(framenumber);
+      return bikeInstance.getBike.call(framenumber);
     }).then(function(bike) {
 
       if(bike[0] == ""){
