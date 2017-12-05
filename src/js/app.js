@@ -82,7 +82,7 @@ App = {
       if(bike[0] == ""){
         throw new Error("Bike not in register");
       }
-      if(bike[6]){
+      if(bike[7]){
         status = "Stolen";
         status.fontcolor("red");
       }
