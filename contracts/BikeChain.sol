@@ -115,6 +115,12 @@ contract BikeChain is Contacts{
 
     function () payable public{}
 
+    function withdrawEther(address _to, uint _value) onlyContractCreator() public{
+        //require(this.balance > _value);
+        _to.transfer(_value);
+        EtherWithdrawn(msg.sender, _to, _value);
+    }
+
     function addBike(string _frameNumber, string _make, string _model, uint16 _year, uint8 _size, string _colour, string _features, uint _cID)
     payable onlyAdmin(_cID) costs(registrationPrice) public{
         require(register[_frameNumber].owner == 0); // Check bike isn't owned
@@ -205,12 +211,6 @@ contract BikeChain is Contacts{
         return adminSwitch;
     }
 
-    function withdrawEther(address _to, uint _value) onlyContractCreator() public{
-        require(this.balance > _value);
-        _to.transfer(_value);
-        EtherWithdrawn(msg.sender, _to, _value);
-    }
-
     // Get functions
     function getBike(string _frameNumber) constant public
     returns(address owner, string make, string model, uint16 year, uint8 size, string colour, string features, string details, bool stolen){
@@ -267,7 +267,7 @@ contract BikeChain is Contacts{
         owner = register[_frameNumber].owner;
     }
 
-    function getMyBalance() constant public returns (uint) { return this.balance; }
+    function getEthBalance() constant public returns (uint) { return this.balance; }
 
     function getAdminSwitch() constant public returns(bool) { return adminSwitch; }
 
