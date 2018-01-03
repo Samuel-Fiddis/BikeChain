@@ -38,10 +38,18 @@ App = {
     $(document).on('click', '.register-bike', App.registerBike);
     $(document).on('click', '.show-bike', App.showBike);
     $(document).on('click', '.report-bike', App.reportBike);
+    $(document).on('click', '.transfer-bike', App.transferBike);
+
+    // Admin Functions
+    $(document).on('click', '.contract-owner', App.contractOwner);
+    $(document).on('click', '.total-supply', App.totalBikes);
+    $(document).on('click', '.reg-price', App.registrationPrice);
   },
 
   registerBike: function(event){
     event.preventDefault();
+
+    var bikechainInstance;
 
     var framenumber = $('#registerBike').find('input[name="FrameNumber"]').val();
     var make = $('#registerBike').find('input[name="Make"]').val();
@@ -50,12 +58,14 @@ App = {
     var size = parseInt($('#registerBike').find('input[name="Size"]').val());
     var colour = $('#registerBike').find('input[name="Colour"]').val();
     var features = $('#registerBike').find('input[name="Features"]').val();
+    var infoUrl = $('#registerBike').find('input[name="InfoUrl"]').val();
     var cID = 0;
 
     App.contracts.BikeChain.deployed().then(function(instance) {
       bikechainInstance = instance;
-
-      return bikechainInstance.addBike(framenumber, make, model, year, size, colour, features, cID);
+      return bikechainInstance.getRegistrationPrice();
+    }).then(function(regP){
+      return bikechainInstance.addBike(framenumber, make, model, year, size, colour, features, infoUrl, cID, {value: regP});
     }).then(function(result) {
       console.log(result.log);
     }).catch(function(err) {
@@ -72,30 +82,44 @@ App = {
     var framenumber = $('#showBike').find('input[name="FrameNumber"]').val();
     var bikeRow = $('#bikeRow');
     var bikeTemplate = $('#bikeTemplate');
+    var infoUrl;
 
     App.contracts.BikeChain.deployed().then(function(instance) {
       bikeInstance = instance;
 
+      return bikeInstance.tokenMetadata.call(framenumber);
+    }).then(function(inUrl){
+      infoUrl = inUrl;
       return bikeInstance.getBike.call(framenumber);
     }).then(function(bike) {
 
-      if(bike[0] == ""){
+      if(bike[1] == ""){
         throw new Error("Bike not in register");
       }
-      if(bike[7]){
+      if(bike[8]){
         status = "Stolen";
         status.fontcolor("red");
       }
 
+      $('#showBike').find('.show-bike-error').text("");
+
       bikeTemplate.find('.framenumber').text(framenumber);
-      bikeTemplate.find('.make').text(bike[0]);
-      bikeTemplate.find('.model').text(bike[1]);
-      bikeTemplate.find('.year').text(String(bike[2]));
+      bikeTemplate.find('.owner').text(bike[0]);
+      bikeTemplate.find('.make').text(bike[1]);
+      bikeTemplate.find('.model').text(bike[2]);
+      bikeTemplate.find('.year').text(String(bike[3]));
+      bikeTemplate.find('.size').text(String(bike[4]));
+      bikeTemplate.find('.colour').text(bike[5]);
+      bikeTemplate.find('.features').text(bike[6]);
+      bikeTemplate.find('.details').text(bike[7]);
       bikeTemplate.find('.stolen').text(status);
+      bikeTemplate.find('.infoUrl').text(infoUrl);
 
       bikeRow.append(bikeTemplate.html());
     }).catch(function(err) {
       console.log(err.message);
+      $('#showBike').find('.show-bike-error').text(err.message);
+      $('#showBike').find('.show-bike-error').css('color', 'red');
     });
 
   },
@@ -123,6 +147,89 @@ App = {
       }).catch(function(err) {
         console.log(err.message);
       });
+    },
+
+    transferBike: function(event){
+      event.preventDefault();
+
+      var bikeInstance;
+      var frameNumber = $('#transferBike').find('input[name="FrameNumber"]').val();
+      var to = $('#transferBike').find('input[name="To"]').val();
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.transfer(to, frameNumber);
+      }).then(function(bike) {
+
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    },
+
+    // Admin Functions
+    contractOwner: function(event){
+      event.preventDefault();
+
+      var cID = 0;
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.getCompany(cID);
+      }).then(function(company){
+        $('#adminFunctions').find('.contract-creator').text(company);
+      }).catch(function(err){
+        console.log(err.message);
+      });
+    },
+
+    contractOwner: function(event){
+      event.preventDefault();
+
+      var cID = $('#adminFunctions').find('input[name="CompanyId"]').val();
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.getCompany(cID);
+      }).then(function(company){
+        $('#adminFunctions').find('.contract-creator').text(company);
+      }).catch(function(err){
+        console.log(err.message);
+      });
+    },
+
+    totalBikes: function(event){
+      event.preventDefault();
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.totalSupply();
+      }).then(function(numBikes){
+        $('#adminFunctions').find('.total-bikes').text(numBikes);
+      }).catch(function(err){
+        console.log(err.message);
+      });
+    },
+
+    registrationPrice: function(event){
+      event.preventDefault();
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.getRegistrationPrice();
+      }).then(function(regP){
+        $('#adminFunctions').find('.registration-price').text(regP + " wei");
+      }).catch(function(err){
+        console.log(err.message);
+      });
+    },
+
+    getDetails: function(event){
+
     }
 };
 

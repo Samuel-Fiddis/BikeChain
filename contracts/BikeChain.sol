@@ -197,7 +197,7 @@ contract BikeChain is Contacts{
       return register[_frameNumber].infoUrl;
     }
 
-    function updateTokenMetadata(string _frameNumber, string _infoUrl) bikeOwner(_frameNumber) constant public{
+    function updateTokenMetadata(string _frameNumber, string _infoUrl) bikeOwner(_frameNumber) public{
       register[_frameNumber].infoUrl = _infoUrl;
     }
 
@@ -307,7 +307,7 @@ contract BikeChain is Contacts{
 
     // Get functions
     function getBike(string _frameNumber) constant public
-    returns(address owner, string make, string model, uint16 year, uint8 size, string colour, string features, string details, bool stolen, string infoUrl){
+    returns(address owner, string make, string model, uint16 year, uint8 size, string colour, string features, string details, bool stolen){
 
     Bike storage b = register[_frameNumber];
     owner = b.owner;
@@ -319,7 +319,6 @@ contract BikeChain is Contacts{
     features = b.features;
     details = b.details;
     stolen = b.stolen;
-    infoUrl = b.infoUrl;
     }
 
     function getFrameIndex(address _owner, string _frameNumber) constant public returns(uint i){
