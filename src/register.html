@@ -1,0 +1,66 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>BikeChain - Register</title>
+
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+
+<div class="container">
+  <nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/index.html">BikeChain</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="/check.html">Check Bike</a></li>
+      <li class="active"><a href="/register.html">Register Bike</a></li>
+      <li><a href="/manage.html">Manage My Bikes</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+
+<!-- Register Bike Form -->
+<div id="registerBike">
+  <form>
+    <fieldset>
+      <legend>Register Your Bike:</legend>
+        Frame Number:</br><input type="text" name="FrameNumber" class="make-input" value="1234"></input></br>
+        Make:</br><input type="text" name="Make" class="make-input" value="Specialized"></input></br>
+        Model:</br><input type="text" name="Model" class="model-input" value="Allez"></input></br>
+        Year:</br><input type="number" name="Year" class="year-input" value=2015></input></br>
+        Size (in cm):</br><input type="number" name="Size" class="size-input" value=56></input></br>
+        Colour:</br><input type="text" name="Colour" class="colour-input" value="Orange"></input></br>
+        Features:</br><input type="text" name="Features" class="features-input" value="Dint on handlebar"></input></br>
+        Info Url:</br><input type="text" name="InfoUrl" class="infourl-input" value=""></input></br>
+        </br><input type="submit" value="Register" class="register-bike">
+      </fieldset>
+  </form>
+</div>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+</div>
+</body>
+</html>

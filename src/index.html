@@ -19,15 +19,20 @@
 
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">BikeChain</h1>
-          <hr/>
-          <br/>
-        </div>
-      </div>
 
+  <div class="container">
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/index.html">BikeChain</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href="/check.html">Check Bike</a></li>
+        <li><a href="/register.html">Register Bike</a></li>
+        <li><a href="/manage.html">Manage My Bikes</a></li>
+      </ul>
+    </div>
+  </nav>
 
       <!-- Register Bike Form -->
       <div id="registerBike">
@@ -125,14 +130,23 @@
 
     <div id="adminFunctions">
       <h3 class="admin">Admin Test Functions</h3>
+
       Company ID:</br><input type="text" name="CompanyId" class="company-id-input" value="0"></input></br>
       <input type="submit" value="Get Company Address" class="contract-owner">
       <span class="contract-creator"></span></br>
-      <input type="submit" value="Total Bikes" class="total-supply">
-      <span class="total-bikes"></span></br>
-      <input type="submit" value="Get Registration Price" class="reg-price">
-      <span class="registration-price"></span></br>
-
+    </br>
+      New Company Address: </br><input type="text" name="NewCompanyId" class="new-company-input" value="0x0"></input></br>
+      <input type="submit" value="Add Company" class="add-company">
+      <span class="new-company-id"></span></br>
+    </br>
+      <input type="submit" value="Change Admin Switch" class="change-switch"></br>
+    </br>
+      <input type="submit" value="Get Contract Details" class="get-details"></br>
+      Eth Balance: <span class="eth-balance"></span></br>
+      Total Bikes: <span class="total-bikes"></span></br>
+      Registration Price: <span class="registration-price"></span></br>
+      Admin Switch: <span class="admin-switch"></span></br>
+      Number of Admins: <span class="admin-num"></span></br>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

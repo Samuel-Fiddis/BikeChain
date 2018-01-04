@@ -42,8 +42,9 @@ App = {
 
     // Admin Functions
     $(document).on('click', '.contract-owner', App.contractOwner);
-    $(document).on('click', '.total-supply', App.totalBikes);
-    $(document).on('click', '.reg-price', App.registrationPrice);
+    $(document).on('click', '.add-company', App.addCompany);
+    $(document).on('click', '.change-switch', App.changeSwitch);
+    $(document).on('click', '.get-details', App.getDetails);
   },
 
   registerBike: function(event){
@@ -168,21 +169,6 @@ App = {
     },
 
     // Admin Functions
-    contractOwner: function(event){
-      event.preventDefault();
-
-      var cID = 0;
-
-      App.contracts.BikeChain.deployed().then(function(instance) {
-        bikeInstance = instance;
-
-        return bikeInstance.getCompany(cID);
-      }).then(function(company){
-        $('#adminFunctions').find('.contract-creator').text(company);
-      }).catch(function(err){
-        console.log(err.message);
-      });
-    },
 
     contractOwner: function(event){
       event.preventDefault();
@@ -200,21 +186,37 @@ App = {
       });
     },
 
-    totalBikes: function(event){
+    addCompany: function(event){
       event.preventDefault();
+
+      var address = $('#adminFunctions').find('input[name="NewCompanyId"]').val();
 
       App.contracts.BikeChain.deployed().then(function(instance) {
         bikeInstance = instance;
 
-        return bikeInstance.totalSupply();
-      }).then(function(numBikes){
-        $('#adminFunctions').find('.total-bikes').text(numBikes);
+        return bikeInstance.addCompany(address);
+      }).then(function(cID){
+        $('#adminFunctions').find('.new-company-id').text(cID);
       }).catch(function(err){
         console.log(err.message);
       });
     },
 
-    registrationPrice: function(event){
+    changeSwitch: function(event){
+      event.preventDefault();
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.getAdminSwitch();
+      }).then(function(adminswitch){
+        return bikeInstance.changeAdminSwitch(!adminswitch);
+      }).catch(function(err){
+        console.log(err.message);
+      });
+    },
+
+    getDetails: function(event){
       event.preventDefault();
 
       App.contracts.BikeChain.deployed().then(function(instance) {
@@ -223,13 +225,25 @@ App = {
         return bikeInstance.getRegistrationPrice();
       }).then(function(regP){
         $('#adminFunctions').find('.registration-price').text(regP + " wei");
+
+        return bikeInstance.totalSupply();
+      }).then(function(sup){
+        $('#adminFunctions').find('.total-bikes').text(sup);
+
+        return bikeInstance.getAdminSwitch();
+      }).then(function(adminswitch){
+        $('#adminFunctions').find('.admin-switch').text(adminswitch);
+
+        return bikeInstance.getEthBalance();
+      }).then(function(bal){
+        $('#adminFunctions').find('.eth-balance').text(bal + " wei");
+
+        return bikeInstance.getCompanyLength();
+      }).then(function(len){
+        $('#adminFunctions').find('.admin-num').text(len);
       }).catch(function(err){
         console.log(err.message);
       });
-    },
-
-    getDetails: function(event){
-
     }
 };
 

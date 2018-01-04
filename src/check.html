@@ -1,0 +1,88 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>BikeChain - Check Bike</title>
+
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+
+<div class="container">
+  <nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/index.html">BikeChain</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/check.html">Check Bike</a></li>
+      <li><a href="/register.html">Register Bike</a></li>
+      <li><a href="/manage.html">Manage My Bikes</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Show Specific Bike -->
+<div id="showBike">
+  <form>
+    <fieldset>
+      <legend>Look Up Bike:</legend>
+        Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
+        </br><input type="submit" value="Show" class="show-bike">
+      </fieldset>
+  </form>
+  <span class="show-bike-error"></span>
+</div>
+
+</br>
+
+<div id="bikeRow" class="row">
+  <!-- Bikes LOAD HERE -->
+</div>
+
+<div id="bikeTemplate" style="display: none;">
+  <div class="col-sm-6 col-md-4 col-lg-6">
+    <div class="panel panel-default panel-pet">
+      <div class="panel-heading">
+        <h3 class="framenumber">5678</h3>
+      </div>
+      <div class="panel-body">
+        <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="images/trek_madone_2018.jpeg" data-holder-rendered="true">
+        <br/><br/>
+        <strong>Owner</strong>: <span class="owner">0x0</span><br/>
+        <strong>Make</strong>: <span class="make">Giant</span><br/>
+        <strong>Model</strong>: <span class="model">Defy</span><br/>
+        <strong>Year</strong>: <span class="year">2008</span><br/>
+        <strong>Size</strong>: <span class="size">52</span><br/>
+        <strong>Colour</strong>: <span class="colour">Black</span><br/>
+        <strong>Features</strong>: <span class="features">Scratch on frame</span><br/>
+        <strong>Status</strong>: <span class="stolen">Undefined</span><br/>
+        <strong>Details</strong>: <span class="details">n/a</span><br/>
+        <strong>Info Url</strong>: <span class="infoUrl">https://www.bikechain.com/x8fg164ufbc01nflape6</span><br/><br/>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+</div>
+</body>
+</html>

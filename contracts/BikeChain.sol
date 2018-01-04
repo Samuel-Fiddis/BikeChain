@@ -36,6 +36,7 @@ contract BikeChain is Contacts{
         string features;
         string details;
         bool stolen;
+        bool found;
         string infoUrl;
     }
 
@@ -112,7 +113,9 @@ contract BikeChain is Contacts{
     event BikeRemoved(address company, address owner, string frameNumber);
     event BikeTransfered(address from, address to, string frameNumber);
     event BikeStolen(string frameNumber, string details);
-    event BikeFound(address finder, string frameNumber, string details);
+    event BikeFound(address finder, string frameNumber);
+    event BikeNotFound(address finder, string frameNumber);
+    event BikeReturned(address owner, string frameNumber);
     event CompanyAdded(address admin, address company, uint cID);
     event CompanyRemoved(address admin, address company, uint cID);
     event OwnerChanged(address from, address to);
@@ -224,6 +227,7 @@ contract BikeChain is Contacts{
         b.colour = _colour;
         b.features = _features;
         b.stolen = false;
+        b.found = false;
         b.infoUrl = _infoUrl;
         supplyNum++;
         BikeCreated(_frameNumber);
@@ -243,10 +247,24 @@ contract BikeChain is Contacts{
         BikeStolen(_frameNumber, _details);
     }
 
-    function reportFound(string _frameNumber, string _details) public{
+    function reportFound(string _frameNumber) public{
         require(register[_frameNumber].stolen);
-        register[_frameNumber].stolen = false;
-        BikeFound(msg.sender, _frameNumber, _details);
+        register[_frameNumber].found = true;
+        BikeFound(msg.sender, _frameNumber);
+    }
+
+    function reportNotFound(string _frameNumber) bikeOwner(_frameNumber) public{
+        register[_frameNumber].found = false;
+        BikeNotFound(msg.sender, _frameNumber);
+    }
+
+    function reportReturned(string _frameNumber) bikeOwner(_frameNumber) public{
+        require(register[_frameNumber].stolen);
+        require(register[_frameNumber].found);
+        Bike storage b = register[_frameNumber];
+        b.stolen = false;
+        b.found = false;
+        BikeReturned(msg.sender, _frameNumber);
     }
 
     function transferOwner(string _frameNumber, address _newOwner, uint _cID) onlyAdminOrOwner(_cID, _frameNumber) public{
@@ -307,7 +325,7 @@ contract BikeChain is Contacts{
 
     // Get functions
     function getBike(string _frameNumber) constant public
-    returns(address owner, string make, string model, uint16 year, uint8 size, string colour, string features, string details, bool stolen){
+    returns(address owner, string make, string model, uint16 year, uint8 size, string colour, string features, string details, bool stolen, bool found){
 
     Bike storage b = register[_frameNumber];
     owner = b.owner;
@@ -319,6 +337,7 @@ contract BikeChain is Contacts{
     features = b.features;
     details = b.details;
     stolen = b.stolen;
+    found = b.found;
     }
 
     function getFrameIndex(address _owner, string _frameNumber) constant public returns(uint i){
