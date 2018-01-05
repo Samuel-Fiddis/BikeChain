@@ -34,7 +34,21 @@
     </div>
   </nav>
 
-  <!-- View My Bikes -->
+      <!-- View My Bikes -->
+      <div id="reportBike">
+        <form>
+          <fieldset>
+            <legend>View My Bikes:</legend>
+              <input type="submit" value="View" class="view-bikes">
+            </fieldset>
+        </form>
+      </div>
+
+    </br>
+
+      <div id="bikeRow" class="row">
+        <!-- Bikes LOAD HERE -->
+      </div>
 
       <!-- Report Bike Stolen -->
       <div id="reportBike">
@@ -63,6 +77,43 @@
         </form>
       </div>
 
+    </br>
+
+      <!-- Remove Bike -->
+      <div id="removeBike">
+        <form>
+          <fieldset>
+            <legend>Remove Your Bike From The Register:</legend>
+              Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
+            </br><input type="submit" value="Remove" class="remove-bike">
+            </fieldset>
+        </form>
+      </div>
+
+    </div>
+
+    <div id="bikeTemplate" style="display: none;">
+      <div class="col-sm-6 col-md-4 col-lg-6">
+        <div class="panel panel-default panel-pet">
+          <div class="panel-heading">
+            <h3 class="framenumber">5678</h3>
+          </div>
+          <div class="panel-body">
+            <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://static.evanscycles.com/production/bikes/road-bikes/product-image/969-638/specialized-allez-2015-road-bike-gloss-black-white-red-Orange-EV212195-2000-3.jpg" data-holder-rendered="true">
+            <br/><br/>
+            <strong>Owner</strong>: <span class="owner">0x0</span><br/>
+            <strong>Make</strong>: <span class="make">Giant</span><br/>
+            <strong>Model</strong>: <span class="model">Defy</span><br/>
+            <strong>Year</strong>: <span class="year">2008</span><br/>
+            <strong>Size</strong>: <span class="size">52</span><br/>
+            <strong>Colour</strong>: <span class="colour">Black</span><br/>
+            <strong>Features</strong>: <span class="features">Scratch on frame</span><br/>
+            <strong>Status</strong>: <span class="stolen">Undefined</span><br/>
+            <strong>Details</strong>: <span class="details">n/a</span><br/>
+            <strong>Info Url</strong>: <span class="infoUrl">https://www.bikechain.com/x8fg164ufbc01nflape6</span><br/><br/>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

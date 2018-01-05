@@ -39,6 +39,7 @@ App = {
     $(document).on('click', '.show-bike', App.showBike);
     $(document).on('click', '.report-bike', App.reportBike);
     $(document).on('click', '.transfer-bike', App.transferBike);
+    $(document).on('click', '.view-bikes', App.viewBikes);
 
     // Admin Functions
     $(document).on('click', '.contract-owner', App.contractOwner);
@@ -124,6 +125,85 @@ App = {
     });
 
   },
+
+  viewBike: function(owner, i){
+
+    var bikeInstance;
+    var status = "Owned";
+    var bikeRow = $('#bikeRow');
+    var bikeTemplate = $('#bikeTemplate');
+    var framenumber;
+    var infoUrl;
+
+    App.contracts.BikeChain.deployed().then(function(instance) {
+      bikeInstance = instance;
+
+      return bikeInstance.tokenOfOwnerByIndex.call(owner, i);
+    }).then(function(fn){
+      framenumber = fn;
+
+      return bikeInstance.tokenMetadata.call(framenumber);
+    }).then(function(iu){
+      infoUrl = iu;
+
+      return bikeInstance.getBike.call(framenumber);
+    }).then(function(bike){
+
+      if(bike[1] == ""){
+        throw new Error("Bike not in register");
+      }
+      if(bike[8]){
+        status = "Stolen";
+        status.fontcolor("red");
+      }
+
+      $('#showBike').find('.show-bike-error').text("");
+
+      bikeTemplate.find('.framenumber').text(framenumber);
+      bikeTemplate.find('.owner').text(bike[0]);
+      bikeTemplate.find('.make').text(bike[1]);
+      bikeTemplate.find('.model').text(bike[2]);
+      bikeTemplate.find('.year').text(String(bike[3]));
+      bikeTemplate.find('.size').text(String(bike[4]));
+      bikeTemplate.find('.colour').text(bike[5]);
+      bikeTemplate.find('.features').text(bike[6]);
+      bikeTemplate.find('.details').text(bike[7]);
+      bikeTemplate.find('.stolen').text(status);
+      bikeTemplate.find('.infoUrl').text(infoUrl);
+
+      bikeRow.append(bikeTemplate.html());
+    }).catch(function(err) {
+      console.log(err.message);
+    });
+
+  },
+
+    viewBikes: function(event){
+      event.preventDefault();
+
+      var bikeInstance;
+      var status = "Owned";
+      var owner;
+      var infoUrl;
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikeInstance = instance;
+
+        return bikeInstance.getSender.call();
+      }).then(function(sender){
+        owner = sender;//0x627306090abaB3A6e1400e9345bC60c78a8BEf57;
+        console.log(owner);
+
+        return bikeInstance.balanceOf(sender);
+      }).then(function(bal){
+        console.log(bal['c'][0]);
+        for(var i = 0; i < bal['c'][0]; i++){
+          App.viewBike(owner, i, bikeInstance);
+        }
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    },
 
     reportBike: function(event){
       event.preventDefault();

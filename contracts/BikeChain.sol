@@ -25,6 +25,7 @@ contract BikeChain is Contacts{
     string contractName;
     string contractSymbol;
     uint256 supplyNum;
+    uint256 donated;
 
     struct Bike{
         address owner;
@@ -132,6 +133,14 @@ contract BikeChain is Contacts{
         supplyNum = 0;
     }
 
+    // Begin Temporary functions
+
+    function getSender() constant public returns(address){
+      return msg.sender;
+    }
+
+    // End Temporary functions
+
     // Begin ERC-721 Standard Functions
 
     function name() constant public returns (string){
@@ -206,7 +215,9 @@ contract BikeChain is Contacts{
 
     // End ERC-721 Standard Functions
 
-    function () payable public{}
+    function () payable public{
+      donated = donated + msg.value;
+    }
 
     function withdrawEther(address _to, uint _value) onlyContractCreator() public{
         //require(this.balance > _value);
@@ -230,6 +241,7 @@ contract BikeChain is Contacts{
         b.found = false;
         b.infoUrl = _infoUrl;
         supplyNum++;
+        donated = donated + msg.value;
         BikeCreated(_frameNumber);
 
         ownerList[msg.sender].push(_frameNumber);
@@ -381,6 +393,8 @@ contract BikeChain is Contacts{
     }
 
     function getEthBalance() constant public returns (uint) { return this.balance; }
+
+    function getEthDonated() constant public returns (uint) { return donated; }
 
     function getAdminSwitch() constant public returns(bool) { return adminSwitch; }
 
