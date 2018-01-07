@@ -38,6 +38,7 @@ contract BikeChain is Contacts{
         string details;
         bool stolen;
         bool found;
+        string founddetails;
         string infoUrl;
     }
 
@@ -256,12 +257,15 @@ contract BikeChain is Contacts{
     function reportStolen(string _frameNumber, string _details) bikeOwner(_frameNumber) public{
         Bike storage b = register[_frameNumber];
         b.stolen = true;
+        b.details = _details;
         BikeStolen(_frameNumber, _details);
     }
 
-    function reportFound(string _frameNumber) public{
+    function reportFound(string _frameNumber, string _details) public{
         require(register[_frameNumber].stolen);
-        register[_frameNumber].found = true;
+        Bike storage b = register[_frameNumber];
+        b.found = true;
+        b.founddetails = _details;
         BikeFound(msg.sender, _frameNumber);
     }
 

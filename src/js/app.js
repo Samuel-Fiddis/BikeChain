@@ -212,15 +212,18 @@ App = {
       var frameNumber = $('#reportBike').find('input[name="FrameNumber"]').val();
       var Stolen = $('#reportBike').find('input[name="Stolen"]').val();
       var Found = $('#reportBike').find('input[name="Found"]').val();
+      var details = $('#reportBike').find('textarea[name="Details"]').val();
+
+      console.log(String(details));
 
       App.contracts.BikeChain.deployed().then(function(instance) {
         bikeInstance = instance;
 
         if(Stolen){
-          return bikeInstance.reportStolen(frameNumber, ""); // Extra details needed
+          return bikeInstance.reportStolen(frameNumber, details); // Extra details needed
         }
         if(Found){
-          return bikeInstance.reportFound(frameNumber, ""); // Extra details needed
+          return bikeInstance.reportFound(frameNumber, details); // Extra details needed
         }
 
       }).then(function(bike) {
@@ -321,6 +324,10 @@ App = {
         return bikeInstance.getCompanyLength();
       }).then(function(len){
         $('#adminFunctions').find('.admin-num').text(len);
+
+        return bikeInstance.getEthDonated();
+      }).then(function(donated){
+        $('#adminFunctions').find('.eth-donated').text(donated + " wei");
       }).catch(function(err){
         console.log(err.message);
       });
