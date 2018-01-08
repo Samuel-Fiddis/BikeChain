@@ -279,7 +279,7 @@ App = {
 
         return bikeInstance.addCompany(address);
       }).then(function(cID){
-        $('#adminFunctions').find('.new-company-id').text(cID);
+        $('#adminFunctions').find('.new-company-id').text("New Company ID: " + cID['logs'][0]['args']['cID']['c'][0]);
       }).catch(function(err){
         console.log(err.message);
       });
