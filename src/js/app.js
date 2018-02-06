@@ -210,19 +210,20 @@ App = {
 
       var bikeInstance;
       var frameNumber = $('#reportBike').find('input[name="FrameNumber"]').val();
-      var Stolen = $('#reportBike').find('input[name="Stolen"]').val();
-      var Found = $('#reportBike').find('input[name="Found"]').val();
+      var status = $('#reportBike').find('input[name="status"]:checked').val();
       var details = $('#reportBike').find('textarea[name="Details"]').val();
 
-      console.log(String(details));
+      console.log($('#reportBike').find('input[name="FrameNumber"]').val());
+      console.log(status);
+      console.log(details);
 
       App.contracts.BikeChain.deployed().then(function(instance) {
         bikeInstance = instance;
 
-        if(Stolen){
+        if(status == 'stolen'){
           return bikeInstance.reportStolen(frameNumber, details); // Extra details needed
         }
-        if(Found){
+        if(status == 'found'){
           return bikeInstance.reportFound(frameNumber, details); // Extra details needed
         }
 

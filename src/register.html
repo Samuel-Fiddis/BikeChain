@@ -34,21 +34,46 @@
 </nav>
 
 
-
 <!-- Register Bike Form -->
 <div id="registerBike">
   <form>
     <fieldset>
       <legend>Register Your Bike:</legend>
-        Frame Number:</br><input type="text" name="FrameNumber" class="make-input" value="1234"></input></br>
-        Make:</br><input type="text" name="Make" class="make-input" value="Specialized"></input></br>
-        Model:</br><input type="text" name="Model" class="model-input" value="Allez"></input></br>
-        Year:</br><input type="number" name="Year" class="year-input" value=2015></input></br>
-        Size (in cm):</br><input type="number" name="Size" class="size-input" value=56></input></br>
-        Colour:</br><input type="text" name="Colour" class="colour-input" value="Orange"></input></br>
-        Features:</br><input type="text" name="Features" class="features-input" value="Dint on handlebar"></input></br>
-        Info Url:</br><input type="text" name="InfoUrl" class="infourl-input" value=""></input></br>
-        </br><input type="submit" value="Register" class="register-bike">
+      <div>
+        <label for="framenumber">Frame Number:</label>
+        <input type="text" id="framenumber" name="FrameNumber" class="frame-input" placeholder="(e.g. M1234F567)" value="1234">
+      </div>
+      <div>
+        <label for="make">Make:</label>
+        <input type="text" id="make" name="Make" class="make-input" placeholder="(e.g. Specialized)" value="Specialized">
+      </div>
+      <div>
+        <label for="model">Model:</label>
+        <input type="text" id="model" name="Model" class="model-input" placeholder="(e.g. Allez)" value="Allez">
+      </div>
+      <div>
+        <label for="year">Year of production:</label>
+        <input type="number" id="year" name="Year" class="year-input" value=2015>
+      </div>
+      <div>
+        <label for="size">Frame Size (in cm):</label>
+        <input type="number" id="size" name="Size" class="size-input" value=56>
+      </div>
+      <div>
+        <label for="colour">Frame Colour/s:</label>
+        <input type="text" id="colour" name="Colour" class="colour-input" value="Orange">
+      </div>
+      <div>
+        <label for="features">Distinguishing Features:</label>
+        <input type="text" id="features" name="Features" class="features-input" placeholder="(e.g. Scratch on side of frame)" value="Dint on handlebar">
+      </div>
+      <div>
+        <label for="infourl">Info Url:</label>
+        <input type="url" id="infourl" name="InfoUrl" class="infourl-input" value="">
+      </div>
+      <div>
+        <input type="submit" value="Register" class="register-bike">
+      </div>
       </fieldset>
   </form>
 </div>
@@ -61,6 +86,7 @@
 <script src="js/web3.min.js"></script>
 <script src="js/truffle-contract.js"></script>
 <script src="js/app.js"></script>
+<script src="js/ipfs.js"></script>
 </div>
 </body>
 </html>

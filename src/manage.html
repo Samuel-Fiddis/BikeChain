@@ -55,10 +55,23 @@
         <form>
           <fieldset>
             <legend>Report Your Bike Stolen/Found:</legend>
-              Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
-              <input type="checkbox" name="Stolen" class="stolen-status">Bike has been stolen.</input></br>
-              <input type="checkbox" name="Found" class="found-status">Bike has been found.</input></br>
-            </br><input type="submit" value="Report" class="report-bike">
+            <div>
+              <label for="framenumber1">Frame Number:</label>
+              <input type="text" id="framenumber1" name="FrameNumber" class="frame-input">
+            </div>
+            <div>
+              <label for="details">Details: </label>
+              <textarea rows="5" cols="50" id="details" name="Details" class="details"></textarea>
+            </div>
+            <div>
+              <input type="radio" id="stolen" name="status" class="stolen-status" value="stolen">
+              <label for="stolen"> Bike has been stolen.</label>
+              <input type="radio" id="found" name="status" class="found-status" value="found">
+              <label for="found"> Bike has been found.</label>
+            </div>
+            <div>
+              <input type="submit" value="Report" class="report-bike">
+            </div>
             </fieldset>
         </form>
       </div>
@@ -70,9 +83,15 @@
         <form>
           <fieldset>
             <legend>Transfer Your Bike:</legend>
-              Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
-              To Address:</br><input type="text" name="To" class="to-input"></input></br>
-            </br><input type="submit" value="Transfer" class="transfer-bike">
+            <div>
+              <label for="framenumber2">Frame Number:</label>
+              <input type="text" id="framenumber2" name="FrameNumber" class="frame-input">
+            </div>
+            <div>
+              <label for="to">To Address:</label>
+              <input type="text" id="to" name="To" class="to-input">
+            </div>
+              <input type="submit" value="Transfer" class="transfer-bike">
             </fieldset>
         </form>
       </div>
@@ -84,8 +103,11 @@
         <form>
           <fieldset>
             <legend>Remove Your Bike From The Register:</legend>
-              Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
-            </br><input type="submit" value="Remove" class="remove-bike">
+            <div>
+              <label for="framenumber3">Frame Number:</label>
+              <input type="text" id="framenumber3" name="FrameNumber" class="frame-input">
+            </div>
+              <input type="submit" value="Remove" class="remove-bike">
             </fieldset>
         </form>
       </div>

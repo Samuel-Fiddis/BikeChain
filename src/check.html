@@ -38,8 +38,11 @@
   <form>
     <fieldset>
       <legend>Look Up Bike:</legend>
-        Frame Number:</br><input type="text" name="FrameNumber" class="make-input"></input></br>
-        </br><input type="submit" value="Show" class="show-bike">
+      <div>
+        <label for="framenumber">Frame Number:</label>
+        <input type="text" id="framenumber" name="FrameNumber" class="frame-input">
+      </div>
+        <input type="submit" value="Show" class="show-bike">
       </fieldset>
   </form>
   <span class="show-bike-error"></span>

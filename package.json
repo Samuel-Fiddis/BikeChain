@@ -1,18 +1,25 @@
 {
   "name": "bike-chain",
   "version": "1.0.0",
-  "description": "",
+  "description": "Bike Register developed on Ethereum Blockchain",
   "main": "truffle.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "dev": "lite-server",
+    "dev2": "node ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Sam Fiddis",
   "license": "ISC",
   "devDependencies": {
+    "ipfs-api": "^17.3.0",
+    "ipfs-mini": "^1.1.2",
     "lite-server": "^2.3.0"
+  },
+  "dependencies": {
+    "truffle-config": "^1.0.4",
+    "truffle-expect": "0.0.3"
   }
 }
