@@ -24,18 +24,11 @@ contract BikeChain is Contacts{
 
     string contractName;
     string contractSymbol;
-    uint256 supplyNum;
+    uint256 totalSupply;
     uint256 donated;
 
     struct Bike{
         address owner;
-        string make;
-        string model;
-        uint16 year;
-        uint8 size;
-        string colour;
-        string features;
-        string details;
         bool stolen;
         bool found;
         string founddetails;
@@ -51,7 +44,6 @@ contract BikeChain is Contacts{
     address[] public company;
     mapping(string => Bike) register; // Maps frame number to bike
     mapping(address => string[]) ownerList; // Maps address to frame numbers
-    // mapping(address => uint256) balance; Maps address to number of bikes owned
     mapping(string => address) approvedAddress; // Maps frame number to address which is approved to take ownership
 
     modifier onlyAdmin(uint _cID){
@@ -131,7 +123,7 @@ contract BikeChain is Contacts{
         adminSwitch = false;
         contractName = "Bike-Token";
         contractSymbol = "🚲";
-        supplyNum = 0;
+        totalSupply = 0;
     }
 
     // Begin Temporary functions
@@ -152,8 +144,8 @@ contract BikeChain is Contacts{
       return contractSymbol;
     }
 
-    function totalSupply() constant public returns (uint256){
-      return supplyNum;
+    function getTotalSupply() constant public returns (uint256){
+      return totalSupply;
     }
 
     function balanceOf(address _owner) constant public returns (uint256){
@@ -226,22 +218,17 @@ contract BikeChain is Contacts{
         EtherWithdrawn(msg.sender, _to, _value);
     }
 
-    function addBike(string _frameNumber, string _make, string _model, uint16 _year, uint8 _size, string _colour, string _features, string _infoUrl, uint _cID)
+    function addBike(string _frameNumber, string _infoUrl, uint _cID)
     payable onlyAdmin(_cID) costs(registrationPrice) public{
         require(register[_frameNumber].owner == 0); // Check bike isn't owned
 
         Bike storage b = register[_frameNumber];
         b.owner = msg.sender;
-        b.make = _make;
-        b.model = _model;
-        b.year = _year;
-        b.size = _size;
-        b.colour = _colour;
-        b.features = _features;
-        b.stolen = false;
+        b.stolen =false;
         b.found = false;
+        b.founddetails = "";
         b.infoUrl = _infoUrl;
-        supplyNum++;
+        totalSupply++;
         donated = donated + msg.value;
         BikeCreated(_frameNumber);
 
@@ -254,11 +241,11 @@ contract BikeChain is Contacts{
         CompanyAdded(company[0], _newCompany, newcID);
     }
 
-    function reportStolen(string _frameNumber, string _details) bikeOwner(_frameNumber) public{
+    function reportStolen(string _frameNumber, string _infoUrl) bikeOwner(_frameNumber) public{
         Bike storage b = register[_frameNumber];
         b.stolen = true;
-        b.details = _details;
-        BikeStolen(_frameNumber, _details);
+        b.infoUrl = _infoUrl;
+        BikeStolen(_frameNumber, _infoUrl);
     }
 
     function reportFound(string _frameNumber, string _details) public{
@@ -271,6 +258,7 @@ contract BikeChain is Contacts{
 
     function reportNotFound(string _frameNumber) bikeOwner(_frameNumber) public{
         register[_frameNumber].found = false;
+        register[_frameNumber].founddetails = "";
         BikeNotFound(msg.sender, _frameNumber);
     }
 
@@ -280,6 +268,7 @@ contract BikeChain is Contacts{
         Bike storage b = register[_frameNumber];
         b.stolen = false;
         b.found = false;
+        b.founddetails = "";
         BikeReturned(msg.sender, _frameNumber);
     }
 
@@ -308,7 +297,7 @@ contract BikeChain is Contacts{
         }
         delete fn[fn.length-1];
         fn.length--;
-        supplyNum--;
+        totalSupply--;
 
         BikeRemoved(msg.sender, owner, _frameNumber);
     }
@@ -341,19 +330,14 @@ contract BikeChain is Contacts{
 
     // Get functions
     function getBike(string _frameNumber) constant public
-    returns(address owner, string make, string model, uint16 year, uint8 size, string colour, string features, string details, bool stolen, bool found){
+    returns(address owner, string details, bool stolen, bool found, string infoUrl){
 
     Bike storage b = register[_frameNumber];
     owner = b.owner;
-    make = b.make;
-    model = b.model;
-    year = b.year;
-    size = b.size;
-    colour = b.colour;
-    features = b.features;
-    details = b.details;
+    details = b.founddetails;
     stolen = b.stolen;
     found = b.found;
+    infoUrl = b.infoUrl;
     }
 
     function getFrameIndex(address _owner, string _frameNumber) constant public returns(uint i){
