@@ -399,7 +399,7 @@ App = {
       }).then(function(regP){
         $('#adminFunctions').find('.registration-price').text(regP + " wei");
 
-        return bikeInstance.totalSupply();
+        return bikeInstance.getTotalSupply();
       }).then(function(sup){
         $('#adminFunctions').find('.total-bikes').text(sup);
 
