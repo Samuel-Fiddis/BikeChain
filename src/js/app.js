@@ -1,3 +1,6 @@
+const IPFS = require('ipfs-mini');
+const ipfs = new IPFS({host: 'ipfs.infura.io', port: 5001, protocol: 'https'});
+
 App = {
   web3Provider: null,
   contracts: {},
@@ -36,7 +39,7 @@ App = {
 
   bindEvents: function() {
     $(document).on('click', '.register-bike', App.registerBike);
-    $(document).on('click', '.show-bike', App.showBike);
+    $(document).on('click', '.show-bike', App.showBikeIPFS);
     $(document).on('click', '.report-bike', App.reportBike);
     $(document).on('click', '.transfer-bike', App.transferBike);
     $(document).on('click', '.view-bikes', App.viewBikes);
@@ -60,20 +63,38 @@ App = {
     var size = parseInt($('#registerBike').find('input[name="Size"]').val());
     var colour = $('#registerBike').find('input[name="Colour"]').val();
     var features = $('#registerBike').find('input[name="Features"]').val();
-    var infoUrl = $('#registerBike').find('input[name="InfoUrl"]').val();
+    var imageurl = $('#registerBike').find('input[name="ImageUrl"]').val();
+    var infoUrl;
     var cID = 0;
 
-    App.contracts.BikeChain.deployed().then(function(instance) {
-      bikechainInstance = instance;
-      return bikechainInstance.getRegistrationPrice();
-    }).then(function(regP){
-      return bikechainInstance.addBike(framenumber, make, model, year, size, colour, features, infoUrl, cID, {value: regP});
-    }).then(function(result) {
-      console.log(result.log);
-    }).catch(function(err) {
-      console.log(err.message);
-    });
+    var data = {Make: make,
+                Model: model,
+                Year: year,
+                Size: size,
+                Colour: colour,
+                Features: features,
+                ImageUrl: imageurl,
+                Stolen: false,
+                TheftDetails: ""};
 
+    ipfs.addJSON(data, (err, infoUrl) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Saved to IPFS", data);
+      console.log("IPFS hash:", infoUrl);
+
+      App.contracts.BikeChain.deployed().then(function(instance) {
+        bikechainInstance = instance;
+        return bikechainInstance.getRegistrationPrice();
+      }).then(function(regP){
+        return bikechainInstance.addBike(framenumber, infoUrl, cID, {value: regP});
+      }).then(function(result) {
+        console.log(result.log);
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    });
   },
 
   showBike: function(event){
@@ -88,7 +109,6 @@ App = {
 
     App.contracts.BikeChain.deployed().then(function(instance) {
       bikeInstance = instance;
-
       return bikeInstance.tokenMetadata.call(framenumber);
     }).then(function(inUrl){
       infoUrl = inUrl;
@@ -126,6 +146,65 @@ App = {
 
   },
 
+  showBikeIPFS: function(event){
+    event.preventDefault();
+
+    var bikeInstance;
+    var status = "Owned";
+    var framenumber = $('#showBike').find('input[name="FrameNumber"]').val();
+    var bikeRow = $('#bikeRow');
+    var bikeTemplate = $('#bikeTemplate');
+
+    App.contracts.BikeChain.deployed().then(function(instance) {
+      bikeInstance = instance;
+      return bikeInstance.getBike.call(framenumber);
+    }).then(function(bike){
+      var info;
+      ipfs.cat(bike[4], (err, data) => {
+        if (err) {
+          return console.log(err);
+        }
+        info = JSON.parse(data);
+        console.log("DATA:", data);
+
+        if(bike[0] == ""){
+          throw new Error("Bike not in register");
+        }
+        if(bike[2]){
+          status = "Stolen";
+          status.fontcolor("red");
+        }
+        if(bike[3]){
+          status = "Found";
+          info["TheftDetails"] = bike[1];
+        }
+
+        $('#showBike').find('.show-bike-error').text("");
+
+        bikeTemplate.find('.img-rounded').attr("src",info["ImageUrl"]);
+        bikeTemplate.find('.framenumber').text("Frame Number: " + framenumber);
+        bikeTemplate.find('.owner').text(bike[0]);
+        bikeTemplate.find('.make').text(info["Make"]);
+        bikeTemplate.find('.model').text(info["Model"]);
+        bikeTemplate.find('.year').text(String(info["Year"]));
+        bikeTemplate.find('.size').text(String(info["Size"]));
+        bikeTemplate.find('.colour').text(info["Colour"]);
+        bikeTemplate.find('.features').text(info["Features"]);
+        bikeTemplate.find('.details').text(info["TheftDetails"]);
+        bikeTemplate.find('.stolen').text(status);
+        bikeTemplate.find('.infoUrl').text("http://ipfs.io/ipfs/" + bike[4]);
+        bikeTemplate.find('.infoUrl').attr("href", "http://ipfs.io/ipfs/" + bike[4])
+
+        bikeRow.append(bikeTemplate.html());
+      });
+    }).catch(function(err) {
+      console.log(err.message);
+      $('#showBike').find('.show-bike-error').text(err.message);
+      $('#showBike').find('.show-bike-error').css('color', 'red');
+    });
+
+  },
+
   viewBike: function(owner, i){
 
     var bikeInstance;
@@ -133,7 +212,6 @@ App = {
     var bikeRow = $('#bikeRow');
     var bikeTemplate = $('#bikeTemplate');
     var framenumber;
-    var infoUrl;
 
     App.contracts.BikeChain.deployed().then(function(instance) {
       bikeInstance = instance;
@@ -141,37 +219,45 @@ App = {
       return bikeInstance.tokenOfOwnerByIndex.call(owner, i);
     }).then(function(fn){
       framenumber = fn;
-
-      return bikeInstance.tokenMetadata.call(framenumber);
-    }).then(function(iu){
-      infoUrl = iu;
-
       return bikeInstance.getBike.call(framenumber);
     }).then(function(bike){
+      var info;
+      ipfs.cat(bike[4], (err, data) => {
+        if (err) {
+          return console.log(err);
+        }
+        info = JSON.parse(data);
+        console.log("DATA:", data);
 
-      if(bike[1] == ""){
-        throw new Error("Bike not in register");
-      }
-      if(bike[8]){
-        status = "Stolen";
-        status.fontcolor("red");
-      }
+        if(bike[0] == ""){
+          throw new Error("Bike not in register");
+        }
+        if(bike[2]){
+          status = "Stolen";
+          status.fontcolor("red");
+        }
+        if(bike[3]){
+          status = "Found";
+          info["TheftDetails"] = bike[1];
+        }
 
-      $('#showBike').find('.show-bike-error').text("");
+        $('#showBike').find('.show-bike-error').text("");
 
-      bikeTemplate.find('.framenumber').text(framenumber);
-      bikeTemplate.find('.owner').text(bike[0]);
-      bikeTemplate.find('.make').text(bike[1]);
-      bikeTemplate.find('.model').text(bike[2]);
-      bikeTemplate.find('.year').text(String(bike[3]));
-      bikeTemplate.find('.size').text(String(bike[4]));
-      bikeTemplate.find('.colour').text(bike[5]);
-      bikeTemplate.find('.features').text(bike[6]);
-      bikeTemplate.find('.details').text(bike[7]);
-      bikeTemplate.find('.stolen').text(status);
-      bikeTemplate.find('.infoUrl').text(infoUrl);
+        bikeTemplate.find('.img-rounded').attr("src",info["ImageUrl"]);
+        bikeTemplate.find('.framenumber').text("Frame Number: " + framenumber);
+        bikeTemplate.find('.owner').text(bike[0]);
+        bikeTemplate.find('.make').text(info["Make"]);
+        bikeTemplate.find('.model').text(info["Model"]);
+        bikeTemplate.find('.year').text(String(info["Year"]));
+        bikeTemplate.find('.size').text(String(info["Size"]));
+        bikeTemplate.find('.colour').text(info["Colour"]);
+        bikeTemplate.find('.features').text(info["Features"]);
+        bikeTemplate.find('.details').text(info["TheftDetails"]);
+        bikeTemplate.find('.stolen').text(status);
+        bikeTemplate.find('.infoUrl').text("http://ipfs.io/ipfs/" + bike[4]);
 
-      bikeRow.append(bikeTemplate.html());
+        bikeRow.append(bikeTemplate.html());
+      });
     }).catch(function(err) {
       console.log(err.message);
     });
@@ -213,22 +299,28 @@ App = {
       var status = $('#reportBike').find('input[name="status"]:checked').val();
       var details = $('#reportBike').find('textarea[name="Details"]').val();
 
-      console.log($('#reportBike').find('input[name="FrameNumber"]').val());
-      console.log(status);
-      console.log(details);
-
       App.contracts.BikeChain.deployed().then(function(instance) {
         bikeInstance = instance;
+        return bikeInstance.getBike.call(frameNumber);
+      }).then(function(bike){
 
-        if(status == 'stolen'){
-          return bikeInstance.reportStolen(frameNumber, details); // Extra details needed
-        }
-        if(status == 'found'){
-          return bikeInstance.reportFound(frameNumber, details); // Extra details needed
-        }
+        ipfs.cat(bike[4], (err, data) => {
+          if (err) {
+            return console.log(err);
+          }
+          info = JSON.parse(data);
+          newInfo = info;
+          newInfo["TheftDetails"] = details;
+          newInfo["Stolen"] = true;
 
-      }).then(function(bike) {
+          console.log(newInfo);
 
+          ipfs.addJSON(newInfo, (err, hash) => {
+
+          if(status == 'stolen') return bikeInstance.reportStolen(frameNumber, hash); // Extra details needed
+          if(status == 'found') return bikeInstance.reportFound(frameNumber, details); // Extra details needed
+          });
+        });
       }).catch(function(err) {
         console.log(err.message);
       });
@@ -243,10 +335,7 @@ App = {
 
       App.contracts.BikeChain.deployed().then(function(instance) {
         bikeInstance = instance;
-
         return bikeInstance.transfer(to, frameNumber);
-      }).then(function(bike) {
-
       }).catch(function(err) {
         console.log(err.message);
       });
