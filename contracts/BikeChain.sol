@@ -1,38 +1,37 @@
 pragma solidity ^0.4.18;
 
-contract Contacts{
+contract BikeChain{
 
-    struct ContactDetails{
-        string name;
-        string email;
-        string phone;
-    }
+  // ----- Coupon Code -----
 
-    mapping(address => ContactDetails) contactList; // Owner details
+  mapping(address => bool) public coupon;
 
-    event ContactDetailsAdded(address owner, string name, string email, string phone);
+  function giveCoupon(address _to) onlyCompany public{
+      coupon[_to] = true;
+  }
 
-    function addContactDetails(string _name, string _email, string _phone) public{
-        contactList[msg.sender].name = _name;
-        contactList[msg.sender].email = _email;
-        contactList[msg.sender].phone = _phone;
-        ContactDetailsAdded(msg.sender, _name, _email, _phone);
-    }
-}
+  function takeCoupon(address _to) onlyCompany public{
+      delete coupon[_to];
+  }
 
-contract BikeChain is Contacts{
+  function useCoupon() internal{
+      coupon[msg.sender] = false;
+  }
+
+  // ------------------------
 
     string contractName;
     string contractSymbol;
     uint256 totalSupply;
     uint256 donated;
+    address creator;
 
     struct Bike{
         address owner;
         bool stolen;
         bool found;
         string founddetails;
-        string infoUrl;
+        string ipfsHash;
     }
 
     // Switch to turn company admin off or on
@@ -41,49 +40,33 @@ contract BikeChain is Contacts{
     // Price to register Bike in Wei
     uint registrationPrice;
 
-    address[] public company;
+    mapping(address => bool) company;
     mapping(string => Bike) register; // Maps frame number to bike
     mapping(address => string[]) ownerList; // Maps address to frame numbers
     mapping(string => address) approvedAddress; // Maps frame number to address which is approved to take ownership
 
-    modifier onlyAdmin(uint _cID){
-        if(adminSwitch) require(msg.sender == company[_cID]);
+    modifier onlyAdmin(){
+        if(adminSwitch) require(company[msg.sender]);
         _;
     }
 
-    modifier onlyAdminOrOwner(uint _cID, string _frameNumber){
-        bool test = false;
-        if(adminSwitch){
-            if(msg.sender == company[_cID]){
-                test = true;
-            }
-        }
-        if(register[_frameNumber].owner == msg.sender){
-            test = true;
-        }
-        require(test);
+    modifier onlyAdminOrOwner(string _frameNumber){
+        require((adminSwitch && (company[msg.sender])) || register[_frameNumber].owner == msg.sender);
         _;
     }
 
-    modifier onlyCompany(uint _cID){
-        require(msg.sender == company[_cID]);
+    modifier onlyCompany(){
+        require(company[msg.sender]);
         _;
     }
 
-    modifier onlyCompanyOrOwner(uint _cID, string _frameNumber){
-        bool test = false;
-        if(msg.sender == company[_cID]){
-            test = true;
-        }
-        if(register[_frameNumber].owner == msg.sender){
-            test = true;
-        }
-        require(test);
+    modifier onlyCompanyOrOwner(string _frameNumber){
+        require(company[msg.sender] || (register[_frameNumber].owner == msg.sender));
         _;
     }
 
     modifier onlyContractCreator(){
-        require(msg.sender == company[0]);
+        require(msg.sender == creator);
         _;
     }
 
@@ -110,15 +93,14 @@ contract BikeChain is Contacts{
     event BikeFound(address finder, string frameNumber);
     event BikeNotFound(address finder, string frameNumber);
     event BikeReturned(address owner, string frameNumber);
-    event CompanyAdded(address admin, address company, uint cID);
-    event CompanyRemoved(address admin, address company, uint cID);
+    event CompanyAdded(address admin, address company);
+    event CompanyRemoved(address admin, address company);
     event OwnerChanged(address from, address to);
     event EtherWithdrawn(address from, address to, uint value);
     event AdminSwitchChanged(bool status);
 
     function BikeChain() public{
-        company.length++;
-        company[0] = msg.sender;
+        creator = msg.sender;
         registrationPrice = 10000000000000000;
         adminSwitch = false;
         contractName = "Bike-Token";
@@ -131,6 +113,8 @@ contract BikeChain is Contacts{
     function getSender() constant public returns(address){
       return msg.sender;
     }
+
+    function getEthBalance() constant public returns (uint) { return address(this).balance; }
 
     // End Temporary functions
 
@@ -159,7 +143,7 @@ contract BikeChain is Contacts{
 
     function approve(address _to, string _frameNumber) bikeOwner(_frameNumber) public{
       approvedAddress[_frameNumber] = _to;
-      Approval(msg.sender, _to, _frameNumber);
+      emit Approval(msg.sender, _to, _frameNumber);
     }
 
     function takeOwnership(string _frameNumber) hasApproval(_frameNumber) public{
@@ -174,7 +158,7 @@ contract BikeChain is Contacts{
       delete fn[fn.length-1];
       fn.length--;
 
-      BikeTransfered(oldOwner, msg.sender, _frameNumber);
+      emit BikeTransfered(oldOwner, msg.sender, _frameNumber);
     }
 
     function transfer(address _to, string _frameNumber) bikeOwner(_frameNumber) public{
@@ -189,7 +173,7 @@ contract BikeChain is Contacts{
       delete fn[fn.length-1];
       fn.length--;
 
-      BikeTransfered(msg.sender, _to, _frameNumber);
+      emit BikeTransfered(msg.sender, _to, _frameNumber);
     }
 
     function tokenOfOwnerByIndex(address _owner, uint256 _index) constant public returns (string frameNumber){
@@ -199,27 +183,26 @@ contract BikeChain is Contacts{
     }
 
     function tokenMetadata(string _frameNumber) constant public returns (string){
-      return register[_frameNumber].infoUrl;
+      return register[_frameNumber].ipfsHash;
     }
 
-    function updateTokenMetadata(string _frameNumber, string _infoUrl) bikeOwner(_frameNumber) public{
-      register[_frameNumber].infoUrl = _infoUrl;
+    function updateTokenMetadata(string _frameNumber, string _ipfsHash) bikeOwner(_frameNumber) public{
+      register[_frameNumber].ipfsHash = _ipfsHash;
     }
 
     // End ERC-721 Standard Functions
 
     function () payable public{
-      donated = donated + msg.value;
+      donated = donated + msg.value; // Can remove this
     }
 
     function withdrawEther(address _to, uint _value) onlyContractCreator() public{
-        //require(this.balance > _value);
         _to.transfer(_value);
-        EtherWithdrawn(msg.sender, _to, _value);
+        emit EtherWithdrawn(msg.sender, _to, _value);
     }
 
-    function addBike(string _frameNumber, string _infoUrl, uint _cID)
-    payable onlyAdmin(_cID) costs(registrationPrice) public{
+    function addBike(string _frameNumber, string _ipfsHash)
+    payable onlyAdmin costs(registrationPrice) public{
         require(register[_frameNumber].owner == 0); // Check bike isn't owned
 
         Bike storage b = register[_frameNumber];
@@ -227,25 +210,24 @@ contract BikeChain is Contacts{
         b.stolen =false;
         b.found = false;
         b.founddetails = "";
-        b.infoUrl = _infoUrl;
+        b.ipfsHash = _ipfsHash;
         totalSupply++;
         donated = donated + msg.value;
-        BikeCreated(_frameNumber);
+        emit BikeCreated(_frameNumber);
 
         ownerList[msg.sender].push(_frameNumber);
     }
 
-    function addCompany(address _newCompany) onlyContractCreator() public returns(uint newcID){
-        newcID = company.length++;
-        company[newcID] = _newCompany;
-        CompanyAdded(company[0], _newCompany, newcID);
+    function addCompany(address _companyAdd) onlyContractCreator public{
+        company[_companyAdd] = true;
+        emit CompanyAdded(creator, _companyAdd);
     }
 
-    function reportStolen(string _frameNumber, string _infoUrl) bikeOwner(_frameNumber) public{
+    function reportStolen(string _frameNumber, string _ipfsHash) bikeOwner(_frameNumber) public{
         Bike storage b = register[_frameNumber];
         b.stolen = true;
-        b.infoUrl = _infoUrl;
-        BikeStolen(_frameNumber, _infoUrl);
+        b.ipfsHash = _ipfsHash;
+        emit BikeStolen(_frameNumber, _ipfsHash);
     }
 
     function reportFound(string _frameNumber, string _details) public{
@@ -253,13 +235,13 @@ contract BikeChain is Contacts{
         Bike storage b = register[_frameNumber];
         b.found = true;
         b.founddetails = _details;
-        BikeFound(msg.sender, _frameNumber);
+        emit BikeFound(msg.sender, _frameNumber);
     }
 
     function reportNotFound(string _frameNumber) bikeOwner(_frameNumber) public{
         register[_frameNumber].found = false;
         register[_frameNumber].founddetails = "";
-        BikeNotFound(msg.sender, _frameNumber);
+        emit BikeNotFound(msg.sender, _frameNumber);
     }
 
     function reportReturned(string _frameNumber) bikeOwner(_frameNumber) public{
@@ -269,10 +251,10 @@ contract BikeChain is Contacts{
         b.stolen = false;
         b.found = false;
         b.founddetails = "";
-        BikeReturned(msg.sender, _frameNumber);
+        emit BikeReturned(msg.sender, _frameNumber);
     }
 
-    function transferOwner(string _frameNumber, address _newOwner, uint _cID) onlyAdminOrOwner(_cID, _frameNumber) public{
+    function transferOwner(string _frameNumber, address _newOwner) onlyAdminOrOwner(_frameNumber) public{
         require(_newOwner != 0);
         ownerList[_newOwner].push(_frameNumber);
         register[_frameNumber].owner = _newOwner;
@@ -284,10 +266,10 @@ contract BikeChain is Contacts{
         delete fn[fn.length-1];
         fn.length--;
 
-        BikeTransfered(msg.sender, _newOwner, _frameNumber);
+        emit BikeTransfered(msg.sender, _newOwner, _frameNumber);
     }
 
-    function removeBike(string _frameNumber, uint _cID) onlyAdminOrOwner(_cID, _frameNumber) public{
+    function removeBike(string _frameNumber) onlyAdminOrOwner(_frameNumber) public{
         address owner = register[_frameNumber].owner;
         delete register[_frameNumber];
         string[] storage fn = ownerList[owner];
@@ -299,45 +281,37 @@ contract BikeChain is Contacts{
         fn.length--;
         totalSupply--;
 
-        BikeRemoved(msg.sender, owner, _frameNumber);
+        emit BikeRemoved(msg.sender, owner, _frameNumber);
     }
 
     // Only contract creator can remove companies
-    function removeCompany(uint _cID) onlyContractCreator() public{
-        require(_cID != 0); // Cant remove contract creator
-        require(_cID < company.length);
-        address companyAddress = company[_cID];
-        for (uint i = _cID; i < company.length-1; i++){
-          company[i] = company[i+1];
-        }
-        delete company[company.length-1];
-        company.length--;
-
-        CompanyRemoved(msg.sender, companyAddress, _cID);
+    function removeCompany(address _companyAdd) onlyContractCreator public{
+        require(company[_companyAdd]);
+        delete company[_companyAdd];
+        emit CompanyRemoved(msg.sender, _companyAdd);
     }
 
-    function changeOwner(address _newOwner) onlyContractCreator() public{
-        company[0] = _newOwner;
-        OwnerChanged(msg.sender, _newOwner);
+    function changeOwner(address _newOwner) onlyContractCreator public{
+        creator = _newOwner;
+        emit OwnerChanged(msg.sender, _newOwner);
     }
 
-    function changeAdminSwitch(bool _status) public returns(bool){
-        require(msg.sender == company[0]);
+    function changeAdminSwitch(bool _status) public onlyContractCreator returns(bool){
         adminSwitch = _status;
-        AdminSwitchChanged(_status);
+        emit AdminSwitchChanged(_status);
         return adminSwitch;
     }
 
     // Get functions
     function getBike(string _frameNumber) constant public
-    returns(address owner, string details, bool stolen, bool found, string infoUrl){
+    returns(address owner, string details, bool stolen, bool found, string ipfsHash){
 
     Bike storage b = register[_frameNumber];
     owner = b.owner;
     details = b.founddetails;
     stolen = b.stolen;
     found = b.found;
-    infoUrl = b.infoUrl;
+    ipfsHash = b.ipfsHash;
     }
 
     function getFrameIndex(address _owner, string _frameNumber) constant public returns(uint i){
@@ -353,34 +327,9 @@ contract BikeChain is Contacts{
         frameNumber = ownerList[_owner][_index];
     }
 
-    function getCompany(uint _cID) constant public returns(address co){
-        require(_cID < company.length);
-        co = company[_cID];
+    function isCompany(address _companyAdd) constant public returns(bool){
+        return company[_companyAdd];
     }
-
-    function getCompanyID() constant public returns(uint id){
-        for(id = 0; id < company.length; id++){
-            if(company[id] == msg.sender) return;
-        }
-        require(false); // Fail if not found
-    }
-
-    function getCompanyLength() constant public returns(uint len){
-        len = company.length;
-    }
-
-    function getContactDetails(address _owner) constant public
-    returns(string contactName, string email, string phone){
-        contactName = contactList[_owner].name;
-        email = contactList[_owner].email;
-        phone = contactList[_owner].phone;
-    }
-
-    function getOwner(string _frameNumber) constant public returns(address owner){
-        owner = register[_frameNumber].owner;
-    }
-
-    function getEthBalance() constant public returns (uint) { return this.balance; }
 
     function getEthDonated() constant public returns (uint) { return donated; }
 

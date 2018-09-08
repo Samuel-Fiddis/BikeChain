@@ -65,7 +65,6 @@ App = {
     var features = $('#registerBike').find('input[name="Features"]').val();
     var imageurl = $('#registerBike').find('input[name="ImageUrl"]').val();
     var infoUrl;
-    var cID = 0;
 
     var data = {Make: make,
                 Model: model,
@@ -88,7 +87,7 @@ App = {
         bikechainInstance = instance;
         return bikechainInstance.getRegistrationPrice();
       }).then(function(regP){
-        return bikechainInstance.addBike(framenumber, infoUrl, cID, {value: regP});
+        return bikechainInstance.addBike(framenumber, infoUrl, {value: regP});
       }).then(function(result) {
         console.log(result.log);
       }).catch(function(err) {
